@@ -1,1 +1,141 @@
+#include <stdio.h>
+#include <string.h>
 
+#define MAX 100
+
+// Structure to store sensor information
+struct Sensor {
+    int sensorID;
+    char sensorType[30];
+    float reading;
+    float minValue;
+    float maxValue;
+};
+
+// Function to accept sensor information using pointer
+void acceptSensors(struct Sensor *s, int n) {
+    int i;
+
+    for (i = 0; i < n; i++) {
+        printf("\nEnter details of Sensor %d\n", i + 1);
+
+        printf("Enter Sensor ID: ");
+        scanf("%d", &(s + i)->sensorID);
+
+        printf("Enter Sensor Type: ");
+        scanf("%29s", (s + i)->sensorType);
+
+        printf("Enter Measured Reading: ");
+        scanf("%f", &(s + i)->reading);
+
+        printf("Enter Minimum Value: ");
+        scanf("%f", &(s + i)->minValue);
+
+        printf("Enter Maximum Value: ");
+        scanf("%f", &(s + i)->maxValue);
+
+        if ((s + i)->minValue > (s + i)->maxValue) {
+            printf("Invalid range! Minimum cannot exceed maximum.\n");
+            i--;
+        }
+    }
+}
+
+// Function to classify sensors as Normal or Abnormal
+void classifySensors(struct Sensor *s, int n) {
+    int i;
+
+    printf("\n----- SENSOR CLASSIFICATION -----\n");
+
+    for (i = 0; i < n; i++) {
+        printf("\nSensor ID: %d", (s + i)->sensorID);
+
+        if ((s + i)->reading >= (s + i)->minValue &&
+            (s + i)->reading <= (s + i)->maxValue) {
+            printf("\nStatus: NORMAL\n");
+        } else {
+            printf("\nStatus: ABNORMAL\n");
+        }
+    }
+}
+
+// Function to calculate average reading for selected sensor type
+void calculateAverage(struct Sensor *s, int n) {
+    char type[30];
+    float sum = 0;
+    int count = 0, i;
+
+    printf("\nEnter Sensor Type to calculate average: ");
+    scanf("%29s", type);
+
+    for (i = 0; i < n; i++) {
+        if (strcmp((s + i)->sensorType, type) == 0) {
+            sum += (s + i)->reading;
+            count++;
+        }
+    }
+
+    if (count > 0) {
+        printf("Average reading of %s sensors = %.2f\n",
+               type, sum / count);
+    } else {
+        printf("No sensors found for this type.\n");
+    }
+}
+
+// Function to display abnormal sensors
+void displayAbnormal(struct Sensor *s, int n) {
+    int i, found = 0;
+
+    printf("\n----- ABNORMAL SENSORS -----\n");
+
+    for (i = 0; i < n; i++) {
+        if ((s + i)->reading < (s + i)->minValue ||
+            (s + i)->reading > (s + i)->maxValue) {
+
+            printf("\nSensor ID: %d", (s + i)->sensorID);
+            printf("\nSensor Type: %s", (s + i)->sensorType);
+            printf("\nMeasured Reading: %.2f", (s + i)->reading);
+            printf("\nAllowed Range: %.2f to %.2f\n",
+                   (s + i)->minValue, (s + i)->maxValue);
+
+            found = 1;
+        }
+    }
+
+    if (found == 0) {
+        printf("No abnormal sensors found.\n");
+    }
+}
+
+int main() {
+    struct Sensor sensors[MAX];
+    int n;
+
+    printf("====================================\n");
+    printf("   IoT SENSOR MONITORING SYSTEM\n");
+    printf("====================================\n");
+
+    printf("Enter number of sensors: ");
+    scanf("%d", &n);
+
+    if (n <= 0 || n > MAX) {
+        printf("Invalid number of sensors!\n");
+        return 1;
+    }
+
+    // Calling user-defined functions
+    acceptSensors(sensors, n);
+
+    classifySensors(sensors, n);
+
+    calculateAverage(sensors, n);
+
+    displayAbnormal(sensors, n);
+
+    printf("\n====================================\n");
+    printf("       PROGRAM COMPLETED\n");
+    printf("====================================\n");
+
+    return 0;
+}
